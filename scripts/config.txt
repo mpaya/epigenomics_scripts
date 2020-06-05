@@ -1,0 +1,116 @@
+################
+#### CONFIG ####
+################
+## In this file a description of the values required to run the 
+## epigenomics pipeline is provided. 
+## Please, provide all paths as absolute paths. $d/f.txt or ~/bin are ok.
+
+# Root Directory.
+## All analysis will be mounted on this location.
+basedir=~/lustre/projects/brapa_spring19
+
+## A copy of the scripts is expected at the base folder of each project.
+## This directory indicates the location of auxiliary scripts.
+# TEST. maybe try to get file dir otherwise.
+scriptd="$basedir"/scripts/aux
+
+# Metadata Information.
+## A metadata file is required. The default format contains:
+##   1st column. full_sample, names of the individual samples
+##   2nd column. sample, names of strains/conditions that samples belong to
+##   3rd column. rnaseq_R1, file names of forward PE reads
+##   4th column. rnaseq_R2, file names of reverse PE reads
+##   5th column. chipseq_R1, file names of forward PE reads
+##   6th column. chipseq_R2, file names of reverse PE reads
+##   7th column. batch, normalization batch for DESeq2
+##   nth column. additional experiments can be added (rnaseq2)
+##   mth column. extra conditions for DESeq2 may be added and edit the analysis
+
+## Path to the metadata file.
+metadata="$basedir"/mutant_list.csv
+
+## Names of the experiments to be analyzed.
+## These names must agree with those on runner scripts > 07.
+exp=(chipseq rnaseq)
+
+## Column positions of the forward read from each experiment.
+## Read pairs must be on contiguous columns. [col=R1 col+1=R2]
+declare -A expidx && expidx=([chipseq]=5 [rnaseq]=3)
+
+## If some metadata columns are switched, indicate column position.
+col_sample=1  # full_sample
+col_strain=2  # sample
+col_batch=7   # batch
+
+## Indicate sample names of input ChIP and wild type.
+## On this pipeline, only one input sample is considered.
+input_name=input
+wt_name=WT
+
+# Genomic Resources.
+## This epigenomics pipeline analyzes ChIP-Seq and RNA-Seq data by:
+##   - Mapping to a reference genome.
+##   - Counting RNA-Seq reads on gene models.
+##   - Restricting the analysis to targeted genomic regions on ChIP-Seq.
+##   - Measuring abundance of ChIP-Seq reads on normalized genomic features.
+##   - Wrapping annotated and ready-to-analyze results.
+## Thus, we need some information from you. Thanks.
+# STILL UNFIXED
+## on DESeq2, col_name of gene names in annot is "feature"
+## on manorm.R, genome_annot header = TRUE and idcol = 1
+
+## Paths to genomic resources.
+genome_file=$STORE/UPM-CBGP/libraries/Bra_v3.0/Brapa_chiifu_v3.0.fasta
+genome_gff=$STORE/UPM-CBGP/libraries/Bra_v3.0/Brapa_genome_v3.0_genes.gff3
+genome_annot=$STORE/UPM-CBGP/libraries/Bra_v3.0/Bra_v3.0_annot_full.txt
+
+## Path to a file containing a list of chromosomes/scaffolds to keep
+## during filtering step of aligned ChIP-Seq data.
+## Used by epic2 optimization to calculate genome coverage.
+# TEST. What if left empty?
+filterlist=$STORE/UPM-CBGP/libraries/Bra_v3.0/nuclear_scaff.txt
+
+## Info for genome indexing: species tag, genome id and storage dir.
+genome_sp=brapa
+genome_id=Bra_v3.0
+refdir=$STORE/reference/$genome_id
+
+## Info for ChIP-Seq analysis tools. e.g. epic2, deeptools.
+egf=0.9941        # effective genome fraction
+peak_fc=0         # Min log2FC required on called peaks
+epic2_gap=1       # Selected gap size of epic2 peaks for MAnorm
+manorm_m=0        # Min log2FC (M) required on MAnorm results
+
+
+# Software.
+## Instructions to install most of the software are already included.
+## So far code does not install and assumes modules.
+
+## Path for software installations.
+sw_dir=~/store/software
+
+## Path to Anaconda3 installation. By default in software dir.
+anaconda_dir=$sw_dir/anaconda3
+
+## Add dir to PATH. Note that this script  is sourced multiple times,
+## we recommend to modify PATH on ~/.bash_rc or do it manually.
+# PATH=~/bin:$PATH
+
+
+# Scripts.
+## Values used on scripts. 
+##   - Adapter file, required for trimming. Downloaded if absent.
+##   - Gap size from epic2 optimization selected for MAnorm. Default 1.
+##   - log2FC to filter results from epic2 and MAnorm. Default 0.
+##   - If .sam files contain errors, maximum number of fixing attempts.
+adapters_file=$sw_dir/Sequencing_adaptors.fasta
+htseq_maxerr=3
+
+## File endings at various steps. Recomended to leave as is.
+## Maybe useful to match an external source.
+## Note that most other files follow specified patterns.
+htseq_pt=.counts.txt
+sortbam_pt=.sort.bam
+dup_pt=.dupmark.bam
+finalbam_pt=.final.bam
+
