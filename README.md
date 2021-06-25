@@ -8,7 +8,7 @@ The initial script creates the environment according to the instructions indicat
 * Auxiliary scripts contain complex instructions to run multiple software and processes, and are written either in bash or R. They are called either from a runner script or another auxiliary script. They contain running instructions for a slurm cluster. Specific running parameters not included in the configuration file may be specified here. 
 
 ## Usage
-To mount the file system where the analysis will be performed, fill the fields `basedir` and `refdir` and run:
+A set of scripts in numerical order are provided which perform a complete analysis for ChIP-Seq and RNA-Seq data. The starting point is creating the file system where the results will be stored. In order to do this, the file `config.txt` contains two fields, `basedir` and `refdir`, that are used as root directory for the oncoming project, and the location of resources for the reference genome. When this is ready, run:
 ```bash
 bash 00_start.sh
 ```
@@ -28,4 +28,4 @@ The next step is raw read trimming. It also find files in `ARCHIVE` but stores r
 bash 02_skewer.sh
 ```
 
-Following steps find files in directories created along the analysis. They are meant to run in numeric order. The last step, `13_multiqc.sh`, gathers results and generate reports and files ready for publication.
+Following steps find files in directories created along the analysis. The last step, `13_multiqc.sh`, gathers results and generate reports and files ready for publication.
